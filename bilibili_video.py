@@ -19,17 +19,15 @@ sys.setdefaultencoding('utf-8')
 urls = []
 
 head = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36'
+#    'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
 }
+
 
 time1 = time.time()
 
-for i in range(17501, 100000):
-    url = 'http://bilibili.com/video/av' + str(i)
-    urls.append(url)
-
-
-def spider(url):
+def spider(avId):
+    url = 'http://bilibili.com/video/av' + str(avId)
     html = requests.get(url, headers=head)
     selector = etree.HTML(html.text)
     content = selector.xpath("//html")
@@ -67,7 +65,7 @@ def spider(url):
             if mid_log:
                 mid = mid_log[0]
             else:
-                mid = ""
+                mid = "0"
             if name_log:
                 name = name_log[0]
             else:
@@ -160,35 +158,32 @@ def spider(url):
                     if jsDict['code'] == 0:
                         jsData = jsDict['data']
                         jsPages = jsData['page']
-                        common = jsPages['acount']
+                        acomment = jsPages['acount']
+                        comment = jsPages['count']
                         try:
-                            conn = MySQLdb.connect(host='localhost', user='root', passwd='', port=3306, charset='utf8')
+                            conn = MySQLdb.connect(host='localhost', user='ubuntu', passwd='', port=3306, charset='utf8')
                             cur = conn.cursor()
-                            conn.select_db('python')
-                            cur.execute('INSERT INTO video VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-                                                [str(av), str(av), cid, title, tminfo, time, click, danmu, coins, favourites, duration,
-                                                 mid, name, article, fans, tag1, tag2, tag3, str(common), honor_click, honor_coins, honor_favourites])
-
-                            print "Succeed: av" + str(av)
+                            conn.select_db('b')
+                            cur.execute('INSERT INTO video VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                                                [str(av), int(av), int(cid), title, tminfo, time, int(click), int(danmu), int(coins), int(favourites), duration,
+                                                 int(mid), name, int(article), int(fans), tag1, tag2, tag3, int(acomment), int(comment), int(honor_click), int(honor_coins), int(honor_favourites)])
+                            print "Succ: " + str(avId)
                         except MySQLdb.Error, e:
-                            print "Mysql Error %d: %s" % (e.args[0], e.args[1])
+                            print "Mysql_Error: %d %d: %s" % (avId, e.args[0], e.args[1])
                     else:
-                        print "Error_Json: " + url
+                        print "Error_Json: " + str(avId)
             else:
-                print "Error_noCid:" + url
+                print "Error_noCid:" + str(avId)
         else:
-            print "Error_404: " + url
+            print "Error_404: " + str(avId)
 
 
 pool = ThreadPool(10)
-# results = pool.map(spider, urls)
 try:
-    results = pool.map(spider, urls)
+    results = pool.map(spider, range(4498049, 8811615))
 except Exception, e:
     # print 'ConnectionError'
     print e
-    time.sleep(300)
-    results = pool.map(spider, urls)
 
 pool.close()
 pool.join()

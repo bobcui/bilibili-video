@@ -42,11 +42,16 @@ CREATE TABLE `video` (
   `tag1` varchar(45) DEFAULT NULL,
   `tag2` varchar(45) DEFAULT NULL,
   `tag3` varchar(45) DEFAULT NULL,
-  `common` int(11) DEFAULT NULL,
+  `acomment` int(11) DEFAULT NULL,
+  `comment` int(11) DEFAULT NULL,
   `honor_click` int(11) DEFAULT NULL,
   `honor_coins` int(11) DEFAULT NULL,
   `honor_favourites` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  INDEX(`danmu`),
+  INDEX(`acomment`),
+  INDEX(`comment`),
+  INDEX(`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
